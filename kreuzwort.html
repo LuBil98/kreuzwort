@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crossword Puzzle with Speech Recognition</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        td {
+            border: 1px solid black;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+        }
+        .clue {
+            margin-top: 20px;
+        }
+        button {
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Crossword Puzzle with Speech Recognition</h1>
+    <table id="crossword">
+        <tr>
+            <td id="cell-0-0"></td>
+            <td id="cell-0-1"></td>
+            <td id="cell-0-2"></td>
+            <td id="cell-0-3"></td>
+        </tr>
+        <tr>
+            <td id="cell-1-0"></td>
+            <td id="cell-1-1"></td>
+            <td id="cell-1-2"></td>
+            <td id="cell-1-3"></td>
+        </tr>
+        <tr>
+            <td id="cell-2-0"></td>
+            <td id="cell-2-1"></td>
+            <td id="cell-2-2"></td>
+            <td id="cell-2-3"></td>
+        </tr>
+        <tr>
+            <td id="cell-3-0"></td>
+            <td id="cell-3-1"></td>
+            <td id="cell-3-2"></td>
+            <td id="cell-3-3"></td>
+            <td id="cell-3-4"></td>
+            <td id="cell-3-5"></td>
+            <td id="cell-3-6"></td>
+        </tr>
+        <tr>
+            
+        </tr>
+    </table>
+    <div class="clue">Hinweise:</div>
+    <ol>
+        <li>Ein Haustier?</li>
+        <li>Eine Farbe?</li>
+        <li>Hauptstadt von Norwegen?</li>
+        <li>Eine Ballsportart?</li>
+    </ol>
+    <button onclick="startSpeechRecognition()">Antwort eingeben</button>
+    
+    <script>
+        const solution = [
+            ['H', 'U', 'N', 'D'],
+            ['B', 'L', 'A', 'U'],
+            ['O', 'S', 'L', 'O'],
+            ['B', 'A', 'S', 'E', 'B', 'A', 'L', 'L']
+        ];
+
+        const speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        speechRecognition.lang = 'de-DE';
+        let currentQuestionIndex = 0;
+
+        speechRecognition.onresult = function(event) {
+            const speechResult = event.results[0][0].transcript.toUpperCase().trim();
+            checkSolution(speechResult);
+            currentQuestionIndex++;
+            if (currentQuestionIndex < solution.length) {
+                setTimeout(startSpeechRecognition, 1000); // Start new recognition after 1 second
+            }
+        }
+
+        speechRecognition.onerror = function(event) {
+            console.error('Speech recognition error:', event.error);
+        }
+
+        function checkSolution(word) {
+            if (!word) return;  // Ignore empty input
+            word = word.replace(/\s+/g, '');  // Remove any spaces in the recognized word
+            const solutionWord = solution[currentQuestionIndex].join('');
+            if (word === solutionWord) {
+                const row = currentQuestionIndex;
+                for (let col = 0; col < solution[row].length; col++) {
+                    document.getElementById(`cell-${row}-${col}`).textContent = solution[row][col];
+                }
+            } else {
+                console.log('Incorrect answer for question', currentQuestionIndex + 1);
+            }
+        }
+
+        function startSpeechRecognition() {
+            speechRecognition.start();
+        }
+    </script>
+</body>
+</html>
+
+
